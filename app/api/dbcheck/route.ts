@@ -1,0 +1,1 @@
+import { NextResponse } from 'next/server'; import { prisma } from '@/lib/prisma'; export async function GET(){ try{ const count=await prisma.incident.count(); return NextResponse.json({ok:true,incidentCount:count}); }catch(e:any){ return new NextResponse(`DB ERROR: ${e.message||e}`,{status:500}); }}

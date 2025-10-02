@@ -1,0 +1,8 @@
+'use client'; import React,{useRef,useState} from 'react';
+export default function FileUpload({incidentId}:{incidentId:string}){ const inputRef=useRef<HTMLInputElement>(null); const[busy,setBusy]=useState(false); const[error,setError]=useState<string|null>(null);
+ async function upload(){ const file=inputRef.current?.files?.[0]; if(!file) return; setBusy(true); setError(null);
+  try{ const sign=await fetch('/api/blob/signer',{method:'POST',body:JSON.stringify({filename:file.name,contentType:file.type})}); if(!sign.ok) throw new Error(await sign.text()); const {url,pathname}=await sign.json();
+    const res=await fetch(url,{method:'PUT',body:file,headers:{'Content-Type':file.type}}); if(!res.ok) throw new Error('Falló la carga'); const base=process.env.NEXT_PUBLIC_BLOB_BASE_URL||''; const blobUrl=`${base}${pathname}`;
+    const save=await fetch(`/api/incidents/${incidentId}/attachments`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({fileName:file.name,fileUrl:blobUrl,uploadedBy:'usuario'})});
+    if(!save.ok) throw new Error(await save.text()); window.location.reload(); }catch(e:any){ setError(e.message||'Error'); } finally{ setBusy(false); } }
+ return (<div className="space-y-2"><div className="flex items-center gap-3"><input ref={inputRef} type="file" className="input"/><button className="btn" onClick={upload} disabled={busy}>{busy?'Subiendo...':'Subir documento'}</button></div>{error&&<p className='text-red-600'>{error}</p>}<p className="text-xs text-slate-500">Requiere Vercel Blob para producción.</p></div>); }

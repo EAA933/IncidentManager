@@ -1,0 +1,1 @@
+import IncidentForm from '@/components/IncidentForm'; export default function NewIncidentPage(){ return (<div className='space-y-4'><h1 className='text-2xl font-semibold'>Nueva incidencia</h1><IncidentForm/></div>); }

@@ -1,0 +1,39 @@
+generator client { provider = "prisma-client-js" }
+datasource db { provider = "postgresql"; url = env("DATABASE_URL") }
+model Incident {
+  id            String   @id @default(cuid())
+  title         String
+  description   String
+  date          DateTime
+  reporterName  String
+  correspondent String
+  area          String
+  status        Status   @default(OPEN)
+  controlOwner  String
+  nextSteps     String?
+  attachments   Attachment[]
+  updates       Update[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  @@index([status, area, correspondent])
+  @@index([date])
+}
+model Attachment {
+  id         String   @id @default(cuid())
+  incident   Incident @relation(fields: [incidentId], references: [id], onDelete: Cascade)
+  incidentId String
+  fileName   String
+  fileUrl    String
+  uploadedBy String
+  uploadedAt DateTime @default(now())
+}
+model Update {
+  id         String   @id @default(cuid())
+  incident   Incident @relation(fields: [incidentId], references: [id], onDelete: Cascade)
+  incidentId String
+  note       String
+  status     Status?
+  createdAt  DateTime @default(now())
+  author     String
+}
+enum Status { OPEN IN_PROGRESS ON_HOLD RESOLVED CLOSED }
